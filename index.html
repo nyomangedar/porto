@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --fg: #1c1917;
+    --muted: #78716c;
+    --line: #e7e5e4;
+    --card: #ffffff;
+    --accent: #2563eb;
+    --code: #f5f5f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0a09;
+      --fg: #e7e5e4;
+      --muted: #a8a29e;
+      --line: #292524;
+      --card: #1c1917;
+      --accent: #60a5fa;
+      --code: #292524;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  img { max-width: 100%; }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+  }
+  nav a { color: var(--muted); font-size: 14px; white-space: nowrap; }
+  nav a:hover, nav a.active { color: var(--fg); text-decoration: none; }
+  nav a.brand { color: var(--fg); font-weight: 600; margin-right: auto; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 0 20px 40px; }
+
+  .hero { padding: 72px 0 40px; }
+  .hero h1 {
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+  .hero p { font-size: 1.15rem; color: var(--muted); margin: 0 0 12px; }
+  .hero img { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; }
+  .hero ul {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+
+  section { padding: 40px 0; border-top: 1px solid var(--line); scroll-margin-top: 48px; }
+  section > h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 0 0 20px;
+  }
+
+  article {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin: 0 0 14px;
+  }
+  article > :last-child { margin-bottom: 0; }
+  article h3 { font-size: 1.1rem; margin: 0 0 4px; }
+  /* Image galleries: a paragraph that contains only images */
+  section .gallery { display: grid; gap: 10px; margin: 14px 0; }
+  section .gallery.grid { grid-template-columns: repeat(var(--cols), 1fr); }
+  section .gallery img {
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--code);
+    cursor: zoom-in;
+  }
+  section .gallery.grid img { aspect-ratio: 4 / 3; object-fit: cover; }
+  @media (max-width: 560px) {
+    section .gallery.grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Full-screen image viewer */
+  #lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 56px;
+    background: rgba(0, 0, 0, 0.92);
+  }
+  #lightbox[hidden] { display: none; }
+  #lightbox img { max-width: 100%; max-height: calc(100vh - 140px); object-fit: contain; border-radius: 6px; }
+  #lightbox p { color: #d6d3d1; font-size: 14px; margin: 12px 0 0; min-height: 1.4em; text-align: center; }
+  #lightbox button {
+    position: absolute;
+    padding: 12px;
+    background: none;
+    border: 0;
+    color: #fff;
+    font-size: 36px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.75;
+  }
+  #lightbox button:hover { opacity: 1; }
+  #lightbox button[hidden] { display: none; }
+  .lb-close { top: 8px; right: 12px; }
+  .lb-prev, .lb-next { top: 50%; transform: translateY(-50%); }
+  .lb-prev { left: 8px; }
+  .lb-next { right: 8px; }
+  @media (max-width: 560px) { #lightbox { padding: 48px 16px; } }
+  .meta { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+  .meta em { font-style: normal; }
+
+  /* A plain list directly under a "Skills" section shows as tags */
+  #skills > ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  #skills > ul li { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 4px 12px; font-size: 14px; }
+
+  code { background: var(--code); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+  pre { background: var(--code); padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  blockquote { margin: 0 0 16px; padding: 4px 16px; border-left: 3px solid var(--line); color: var(--muted); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
+
+  footer {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+    color: var(--muted);
+    font-size: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .error { padding: 80px 0; color: var(--muted); }
+</style>
+</head>
+<body>
+<nav><div class="inner" id="nav"></div></nav>
+<main id="app"></main>
+<footer id="footer"></footer>
+
+<div id="lightbox" hidden>
+  <button class="lb-close" aria-label="Close">&times;</button>
+  <button class="lb-prev" aria-label="Previous image">&lsaquo;</button>
+  <img alt="">
+  <p></p>
+  <button class="lb-next" aria-label="Next image">&rsaquo;</button>
+</div>
+
+<script>
+  // All page content lives in content.md — edit that file, not this one.
+  const CONTENT_FILE = 'content.md';
+
+  // ---------- Minimal markdown parser ----------
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function inline(text) {
+    // Pull code spans out first so nothing inside them gets formatted
+    const codes = [];
+    text = text.replace(/`([^`]+)`/g, (_, c) => '\u0000' + (codes.push(c) - 1) + '\u0000');
+    text = esc(text)
+      .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img src="$2" alt="$1" loading="lazy">')
+      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, url) =>
+        `<a href="${url}"${/^https?:/.test(url) ? ' target="_blank" rel="noopener"' : ''}>${label}</a>`)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+    return text.replace(/\u0000(\d+)\u0000/g, (_, i) => '<code>' + esc(codes[i]) + '</code>');
+  }
+
+  function markdown(src) {
+    const lines = src.split('\n');
+    const listRe = /^\s*([-*+]|\d+\.)\s+/;
+    const imgRe = /!\[[^\]]*\]\([^)\s]+\)/g;
+    let html = '';
+    let i = 0;
+
+    while (i < lines.length) {
+      const line = lines[i];
+      let m;
+
+      if (/^\s*$/.test(line)) { i++; continue; }
+
+      // ``` fenced code block
+      if (/^```/.test(line)) {
+        const buf = [];
+        i++;
+        while (i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]);
+        i++;
+        html += `<pre><code>${esc(buf.join('\n'))}</code></pre>`;
+        continue;
+      }
+
+      // # Heading
+      if ((m = line.match(/^(#{1,6})\s+(.*?)\s*#*$/))) {
+        const n = m[1].length;
+        html += `<h${n}>${inline(m[2])}</h${n}>`;
+        i++;
+        continue;
+      }
+
+      // --- horizontal rule
+      if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) { html += '<hr>'; i++; continue; }
+
+      // > blockquote
+      if (/^>/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^>/.test(lines[i])) buf.push(lines[i++].replace(/^>\s?/, ''));
+        html += `<blockquote>${markdown(buf.join('\n'))}</blockquote>`;
+        continue;
+      }
+
+      // - list / 1. list
+      if ((m = line.match(listRe))) {
+        const ordered = /\d/.test(m[1]);
+        const items = [];
+        while (i < lines.length) {
+          const l = lines[i];
+          if (listRe.test(l)) items.push(l.replace(listRe, ''));
+          else if (/^\s{2,}\S/.test(l) && items.length) items[items.length - 1] += ' ' + l.trim();
+          else break;
+          i++;
+        }
+        const tag = ordered ? 'ol' : 'ul';
+        html += `<${tag}>${items.map(t => `<li>${inline(t)}</li>`).join('')}</${tag}>`;
+        continue;
+      }
+
+      // Paragraph (two trailing spaces = line break)
+      const buf = [];
+      do { buf.push(lines[i++]); }
+      while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(#{1,6}\s|```|>)/.test(lines[i]) && !listRe.test(lines[i]));
+
+      // A paragraph made only of images becomes a gallery
+      const text = buf.join(' ');
+      const imgs = text.match(imgRe);
+      if (imgs && !text.replace(imgRe, '').trim()) {
+        const cols = imgs.length === 4 ? 2 : Math.min(imgs.length, 3);
+        html += `<div class="gallery${imgs.length > 1 ? ' grid' : ''}" style="--cols:${cols}">${imgs.map(inline).join('')}</div>`;
+        continue;
+      }
+
+      html += '<p>' + buf.map((l, k) =>
+        inline(l.trim()) + (k < buf.length - 1 ? (/ {2,}$/.test(l) ? '<br>' : ' ') : '')).join('') + '</p>';
+    }
+    return html;
+  }
+
+  // ---------- Page layout ----------
+  // Everything before the first "## " is the header (name, tagline, links).
+  // Each "## Title" becomes a section in the nav; each "### Title" inside it becomes a card.
+
+  function slug(s) {
+    return s.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  function render(md) {
+    md = md.replace(/\r\n?/g, '\n').replace(/<!--[\s\S]*?-->/g, '');
+    const parts = md.split(/^(?=## )/m);
+    const heroMd = /^## /.test(parts[0]) ? '' : parts.shift();
+
+    let html = `<header class="hero">${markdown(heroMd)}</header>`;
+    const navLinks = [];
+
+    for (const part of parts) {
+      const nl = part.indexOf('\n');
+      const title = (nl === -1 ? part : part.slice(0, nl)).replace(/^##\s+/, '').trim();
+      const body = nl === -1 ? '' : part.slice(nl + 1);
+      const id = slug(title);
+      const [intro, ...cards] = body.split(/^(?=### )/m);
+
+      navLinks.push(`<a href="#${id}">${esc(title)}</a>`);
+      html += `<section id="${id}"><h2>${inline(title)}</h2>${markdown(intro)}` +
+        cards.map(c => `<article>${markdown(c)}</article>`).join('') + `</section>`;
+    }
+
+    const app = document.getElementById('app');
+    app.innerHTML = html;
+
+    // An italic-only line right under a card title becomes its subtitle
+    app.querySelectorAll('article > h3 + p').forEach(p => {
+      if (p.children.length === 1 && p.firstElementChild.tagName === 'EM' && p.textContent.trim() === p.firstElementChild.textContent.trim()) {
+        p.className = 'meta';
+      }
+    });
+
+    const name = app.querySelector('.hero h1')?.textContent.trim() || 'Portfolio';
+    document.title = name;
+    document.getElementById('nav').innerHTML = `<a class="brand" href="#">${esc(name)}</a>` + navLinks.join('');
+    document.getElementById('footer').textContent = `© ${new Date().getFullYear()} ${name}`;
+
+    highlightNav();
+  }
+
+  function highlightNav() {
+    const links = document.querySelectorAll('#nav a:not(.brand)');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    document.querySelectorAll('section').forEach(s => observer.observe(s));
+  }
+
+  // ---------- Image viewer ----------
+  // Click a gallery image to open it full screen; browse the other images of the same project.
+
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = lightbox.querySelector('img');
+  const lbCaption = lightbox.querySelector('p');
+  let lbImages = [];
+  let lbIndex = 0;
+
+  function showImage(i) {
+    lbIndex = (i + lbImages.length) % lbImages.length;
+    const img = lbImages[lbIndex];
+    lbImg.src = img.src;
+    lbImg.alt = img.alt;
+    const counter = lbImages.length > 1 ? `${lbIndex + 1} / ${lbImages.length}` : '';
+    lbCaption.textContent = [img.alt, counter].filter(Boolean).join('  ·  ');
+    lightbox.querySelectorAll('.lb-prev, .lb-next').forEach(b => b.hidden = lbImages.length < 2);
+  }
+
+  function closeLightbox() {
+    lightbox.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('app').addEventListener('click', e => {
+    const img = e.target.closest('section .gallery img');
+    if (!img) return;
+    lbImages = [...img.closest('article, section').querySelectorAll('.gallery img')];
+    showImage(lbImages.indexOf(img));
+    lightbox.hidden = false;
+    document.body.style.overflow = 'hidden';
+  });
+
+  lightbox.addEventListener('click', e => {
+    if (e.target.closest('.lb-prev')) showImage(lbIndex - 1);
+    else if (e.target.closest('.lb-next')) showImage(lbIndex + 1);
+    else if (e.target !== lbImg) closeLightbox();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (lightbox.hidden) return;
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowLeft') showImage(lbIndex - 1);
+    else if (e.key === 'ArrowRight') showImage(lbIndex + 1);
+  });
+
+  // Swipe left/right on touch screens
+  let touchX = null;
+  lightbox.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  lightbox.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50 && lbImages.length > 1) showImage(lbIndex + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+
+  fetch(CONTENT_FILE, { cache: 'no-cache' })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(render)
+    .catch(() => {
+      document.getElementById('app').innerHTML =
+        `<p class="error">Couldn't load <code>${CONTENT_FILE}</code>. If you opened this file directly, ` +
+        `serve the folder instead, e.g. <code>python -m http.server</code>, then visit <code>http://localhost:8000</code>.</p>`;
+    });
+</script>
+</body>
+</html>
